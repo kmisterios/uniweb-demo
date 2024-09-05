@@ -164,5 +164,4 @@ cython_debug/
 .DS_Store
 notebooks/data/
 notebooks/save/
-embeddings/
 *.csv
