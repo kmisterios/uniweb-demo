@@ -79,5 +79,5 @@ if file:
                     knk_df_short_selected.to_html(escape=False), unsafe_allow_html=True
                 )
 
-        st.header("Новые элементыы")
+        st.header("Новые элементы")
         st.dataframe(new_df)
