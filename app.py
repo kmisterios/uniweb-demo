@@ -40,46 +40,24 @@ if file:
         st.header("Кандидаты на новые характеристики")
         st.dataframe(new_df)
 
-        st.header("КНК")
+        st.header("Карта компетенций")
+        knk_df_short = knk_df[knk_df.columns[3:-1]]
         main_comps = [item.name for item in full_char_list]
-        selected_mc_str = st.selectbox(
-            "Основные компетенции",
-            main_comps,
-            index=None,
-            placeholder="Выберите основную компетенцию",
-        )
-        if selected_mc_str:
-            selected_item = list(
-                filter(lambda x: x.name == selected_mc_str, full_char_list)
-            )[0]
-            comps = [item.name for item in selected_item.child]
-            selected_c_str = st.selectbox(
-                "Компетенции", comps, index=None, placeholder="Выберите компетенцию"
-            )
-            if selected_c_str:
-                selected_item = list(
-                    filter(lambda x: x.name == selected_c_str, selected_item.child)
-                )[0]
-                knowledge = [item.name for item in selected_item.child]
-                if len(knowledge) != 0:
-                    selected_know_str = st.selectbox(
-                        "Знания", knowledge, index=None, placeholder="Выберите знание"
-                    )
-                    if selected_know_str:
-                        selected_item = list(
-                            filter(
-                                lambda x: x.name == selected_know_str,
-                                selected_item.child,
-                            )
-                        )[0]
-                        skills = selected_item.child
-                        if len(skills) != 0:
-                            st.text("Навыки")
-                            s = ""
-                            for skill in skills:
-                                s += "- " + skill + "\n"
-                            st.markdown(s)
-                        else:
-                            st.markdown("**Для данного знания не были найдены умения**")
-                else:
-                    st.markdown("**Для данной компетенции не было найдено знаний**")
+        for i in range(len(main_comps)):
+            with st.expander(main_comps[i]):
+                index_start = knk_df_short[
+                    knk_df_short["Основная компетенция"] == main_comps[i]
+                ].index[0]
+                index_end = index_start
+                while index_end < knk_df_short.shape[0] - 1:
+                    index_end += 1
+                    if len(knk_df_short.loc[index_end]["Основная компетенция"]) > 0:
+                        break
+                if index_end == knk_df_short.shape[0] - 1:
+                    index_end += 1
+                knk_df_short_selected = knk_df_short.loc[index_start : index_end - 1][
+                    knk_df_short.columns[1:]
+                ].reset_index(drop=True)
+                st.markdown(
+                    knk_df_short_selected.to_html(escape=False), unsafe_allow_html=True
+                )
