@@ -9,6 +9,7 @@ def get_data(f, queries):
     st.write("Загрузка данных и инициализация методов...")
     knk_creator = KNK(queries_list=queries)
     df_id = pd.read_csv("./materials/df_id_comp.csv")
+    df_id["Компетенция"] = df_id["Компетенция"].apply(lambda x: x.strip())
     st.write("Модель готова к работе.")
     st.write("Создание таблицы КНК...")
     knk_df, new_df, full_char_list = knk_creator.create(f)
@@ -47,7 +48,9 @@ if file:
         main_comps = [item.name for item in full_char_list]
         for i in range(len(main_comps)):
             try:
-                id_comp = df_id.query(f"Компетенция == '{main_comps[i]}'").iloc[0]["ID"]
+                id_comp = df_id.query(f"Компетенция == '{main_comps[i].strip()}'").iloc[
+                    0
+                ]["ID"]
                 id_comp = f" | Код {id_comp}"
             except Exception:
                 id_comp = ""
@@ -68,7 +71,9 @@ if file:
                 ids = []
                 for comp in knk_df_short_selected["Компетенция"].values:
                     try:
-                        id_comp = df_id.query(f"Компетенция == '{comp}'").iloc[0]["ID"]
+                        id_comp = df_id.query(f"Компетенция == '{comp.strip()}'").iloc[
+                            0
+                        ]["ID"]
                     except Exception:
                         id_comp = ""
                     ids.append(id_comp)
