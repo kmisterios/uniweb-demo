@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 
 from model import KNK
@@ -7,11 +8,12 @@ from model import KNK
 def get_data(f, queries):
     st.write("Загрузка данных и инициализация методов...")
     knk_creator = KNK(queries_list=queries)
+    df_id = pd.read_csv("./materials/df_id_comp.csv")
     st.write("Модель готова к работе.")
     st.write("Создание таблицы КНК...")
     knk_df, new_df, full_char_list = knk_creator.create(f)
     st.write("Готово!")
-    return knk_df, new_df, full_char_list
+    return knk_df, new_df, full_char_list, df_id
 
 
 queries = ["навыки", "знания", "компетенции", "должности", "Soft Skills"]
@@ -21,7 +23,7 @@ file = st.file_uploader("Загрузить должностную инстру�
 
 if file:
     with st.status("Обработка файла..."):
-        knk_df, new_df, full_char_list = get_data(file, queries)
+        knk_df, new_df, full_char_list, df_id = get_data(file, queries)
     if knk_df is not None:
         st.header("Должность")
         df_position = knk_df[knk_df.columns[:3]].iloc[[0]]
@@ -44,7 +46,12 @@ if file:
         knk_df_short = knk_df[knk_df.columns[3:-1]]
         main_comps = [item.name for item in full_char_list]
         for i in range(len(main_comps)):
-            with st.expander(main_comps[i]):
+            try:
+                id_comp = df_id.query(f"Компетенция == '{main_comps[i]}'").iloc[0]["ID"]
+                id_comp = f" | Код {id_comp}"
+            except Exception:
+                id_comp = ""
+            with st.expander(main_comps[i] + id_comp):
                 index_start = knk_df_short[
                     knk_df_short["Основная компетенция"] == main_comps[i]
                 ].index[0]
@@ -58,6 +65,14 @@ if file:
                 knk_df_short_selected = knk_df_short.loc[index_start : index_end - 1][
                     knk_df_short.columns[1:]
                 ].reset_index(drop=True)
+                ids = []
+                for comp in knk_df_short_selected["Компетенция"].values:
+                    try:
+                        id_comp = df_id.query(f"Компетенция == '{comp}'").iloc[0]["ID"]
+                    except Exception:
+                        id_comp = ""
+                    ids.append(id_comp)
+                knk_df_short_selected.index = ids
                 st.markdown(
                     knk_df_short_selected.to_html(escape=False), unsafe_allow_html=True
                 )
