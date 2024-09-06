@@ -40,9 +40,6 @@ if file:
                 s += "- " + skill + "\n"
             st.markdown(s)
 
-        st.header("Кандидаты на новые характеристики")
-        st.dataframe(new_df)
-
         st.header("Карта компетенций")
         knk_df_short = knk_df[knk_df.columns[3:-1]]
         main_comps = [item.name for item in full_char_list]
@@ -81,3 +78,6 @@ if file:
                 st.markdown(
                     knk_df_short_selected.to_html(escape=False), unsafe_allow_html=True
                 )
+
+        st.header("Новые элементыы")
+        st.dataframe(new_df)
